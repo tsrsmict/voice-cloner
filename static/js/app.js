@@ -1,5 +1,4 @@
 URL = window.URL || window.webkitURL;
-
 var gumStream; //stream from getUserMedia()
 var rec; //Recorder.js object
 var input; //MediaStreamAudioSourceNode we'll be recording
@@ -9,13 +8,21 @@ var AudioContext = window.AudioContext || window.webkitAudioContext;
 var audioContext; //audio context to help us record
 
 var recordButton = document.getElementById("recordButton");
-var stopButton = document.getElementById("stopButton");
-var pauseButton = document.getElementById("pauseButton");
 
 //add events to those 2 buttons
-recordButton.addEventListener("click", startRecording);
-stopButton.addEventListener("click", stopRecording);
-pauseButton.addEventListener("click", pauseRecording);
+let count = 0;
+recordButton.addEventListener("click", () => {
+  if (count == 0) {
+    startRecording();
+    count = 1;
+  } else {
+    stopRecording();
+    count = 0;
+  }
+});
+// recordButton.addEventListener("click", startRecording);
+// stopButton.addEventListener("click", stopRecording);
+// pauseButton.addEventListener("click", pauseRecording);
 
 function startRecording() {
   console.log("recordButton clicked");
@@ -31,9 +38,9 @@ function startRecording() {
         Disable the record button until we get a success or fail from getUserMedia() 
     */
 
-  recordButton.disabled = true;
-  stopButton.disabled = false;
-  pauseButton.disabled = false;
+  // recordButton.disabled = true;
+  // stopButton.disabled = false;
+  // pauseButton.disabled = false;
 
   /*
         We're using the standard promise based getUserMedia() 
@@ -56,8 +63,6 @@ function startRecording() {
       audioContext = new AudioContext();
 
       //update the format
-      document.getElementById("formats").innerHTML =
-        "Format: 1 channel pcm @ " + audioContext.sampleRate / 1000 + "kHz";
 
       /*  assign to gumStream for later use  */
       gumStream = stream;
@@ -84,64 +89,28 @@ function startRecording() {
     });
 }
 
-//remove ideally
-function pauseRecording() {
-  console.log("pauseButton clicked rec.recording=", rec.recording);
-  if (rec.recording) {
-    //pause
-    rec.stop();
-    pauseButton.innerHTML = "Resume";
-  } else {
-    //resume
-    rec.record();
-    pauseButton.innerHTML = "Pause";
-  }
-}
-
-function stopRecording() {
+async function stopRecording() {
   console.log("stopButton clicked");
 
-  //disable the stop button, enable the record too allow for new recordings
-  stopButton.disabled = true;
-  recordButton.disabled = false;
-  pauseButton.disabled = true;
-
-  //reset button just in case the recording is stopped while paused
-  pauseButton.innerHTML = "Pause";
-
-  //tell the recorder to stop the recording
   rec.stop();
 
   //stop microphone access
   gumStream.getAudioTracks()[0].stop();
 
   //create the wav blob and pass it on to createDownloadLink
-  rec.exportWAV(createDownloadLink); //actually calls the upload
+  rec.exportWAV(sendData);
 }
-
-function createDownloadLink(blob) {
-  var url = URL.createObjectURL(blob);
-  var au = document.createElement("audio");
-  var li = document.createElement("li");
-  var link = document.createElement("a");
-
-  //name of .wav file to use during upload and download (without extendion)
+function sendData(blob) {
   var filename = new Date().toISOString();
-
-  //upload link
-  var upload = document.createElement("a");
-  upload.href = "#";
-  upload.innerHTML = "Upload";
-  upload.addEventListener("click", function (event) {
-    var xhr = new XMLHttpRequest();
-    xhr.onload = function (e) {
-      if (this.readyState === 4) {
-        console.log("Server returned: ", e.target.responseText);
-      }
-    };
-    var fd = new FormData();
-    fd.append("audio_data", blob, filename);
-    xhr.open("POST", "/", true);
-    xhr.send(fd);
-  });
+  var xhr = new XMLHttpRequest();
+  xhr.onload = function (e) {
+    if (this.readyState === 4) {
+      console.log("Server returned: ", e.target.responseText);
+    }
+  };
+  var fd = new FormData();
+  fd.append("audio_data", blob, filename);
+  fd.append("conversation", localStorage.getItem("conversation"));
+  xhr.open("POST", "/", true);
+  xhr.send(fd);
 }
