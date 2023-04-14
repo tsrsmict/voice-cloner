@@ -111,6 +111,10 @@ class CloneConversation:
         }
         """
         response_message = response.choices[0]["message"]["content"]
+        new_agent_message = ChatGPTConversationMessage(
+            ChatGPTConversationMessageRole.assistant, response_message
+        ) 
+        self.message_objects.append(new_agent_message)
         print(f'{response_message=}')
         return response_message
 
