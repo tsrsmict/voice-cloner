@@ -1,10 +1,8 @@
+
 For developement purposes create a .env file in your root directory and add the following line to it
 
 ```
 ENV=DEV
 ```
 
-TODO
-
-1. Remove random HTML
-2. Merge start stop and upload buttons into one.
+This project requires PyAudio. If on M1 Pro devices, follow [this solution](https://stackoverflow.com/questions/73268630/error-could-not-build-wheels-for-pyaudio-which-is-required-to-install-pyprojec) from stack overflow.
