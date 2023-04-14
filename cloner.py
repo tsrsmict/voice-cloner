@@ -3,10 +3,11 @@ import json
 from enum import Enum
 from typing import List
 import argparse
-
+import shutil
 import requests
 import openai
 from dotenv import load_dotenv
+import time
 import speech_recognition as sr
 
 load_dotenv()
@@ -118,9 +119,11 @@ class CloneConversation:
         print(f'{response_message=}')
         return response_message
 
+
     # Private method
+  
     def __play_tts_stream(self, agent_text: str):
-        url = f"https://api.elevenlabs.io/v1/text-to-speech/{self.voice.elevenlabs_voice_id}/stream"
+        url = f"https://api.elevenlabs.io/v1/text-to-speech/{self.voice.elevenlabs_voice_id}"
         body = {"text": agent_text, "voice_settings": self.voice.elevenlabs_settings}
         headers = {
             "Content-Type": "application/json",
@@ -128,9 +131,11 @@ class CloneConversation:
             "xi-api-key": ELEVENLABS_API_KEY,
         }
         response = requests.post(url, json=body, headers=headers, stream=True)
-        for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
-            if chunk:
-                print(chunk)
+        print(response.raw)
+        with open('sample.wav', 'wb') as out_file:
+             shutil.copyfileobj(response.raw, out_file)
+    
+        os.system("ffplay sample.wav -nodisp -autoexit")
 
     # Public method
     def play_response_to_new_message(self, user_message: str):

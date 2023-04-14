@@ -26,10 +26,10 @@ def start_conversation():
 
     num_inputs = 0
 
-    # while num_inputs < 6:
-    #     user_message = get_audio()
-    #     conversation.play_response_to_new_message(user_message)
-    #     num_inputs += 1
+    while num_inputs < 6:
+        user_message = get_audio()
+        conversation.play_response_to_new_message(user_message)
+        num_inputs += 1
 
 button = Button(root, text="Start talking!", command=start_conversation).pack()
 

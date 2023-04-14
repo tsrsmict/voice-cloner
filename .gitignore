@@ -1,4 +1,5 @@
 .env
 __pycache__
-audio.wav
 venv/
+sample.wav
+audio.wav
