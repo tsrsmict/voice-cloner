@@ -21,7 +21,8 @@ def start_conversation(voice: VoiceClone = voices[0]):
     num_inputs = 0
     while num_inputs < 20 and conversation is not None:
         user_message = conversation.get_audio()
-        conversation.play_response_to_new_message(user_message)
+        if conversation is not None:
+            conversation.play_response_to_new_message(user_message)
         num_inputs += 1
 
 app = Flask(__name__)
@@ -33,7 +34,6 @@ def index():
 
 @app.route("/start-conversation")
 def start_conversation_route():
-    print(request)
     args = request.args
     voice_id = int(args.get("voice"))
     voice = voices[voice_id]
@@ -51,6 +51,7 @@ def conversation_status():
 def end_current_conversation():
     global conversation
     conversation = None
+    print("Ended conversation")
     return "Ended conversation"
 
 if __name__=="__main__":

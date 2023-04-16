@@ -1,44 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
-  </head>
-  <body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
+</head>
+<style>
+  #end-conversation-button {
+    display: none;
+  }
+</style>
+
+<body>
+  <div class="jumbotron">
     <h1>Voice cloner</h1>
-
     <label for="">Choose voice</label>
-    <select name="" id="">
-      <option value="mr-beast">Mr. Beast</option>
-      <option value="mr-beast">Mr. Beast</option>
+    <select name="" id="voice-id">
+      {% for voice in voices %}
+      <option value="{{ voice['internal-id'] }}">{{voice["person-name"]}}</option>
+      {% endfor %}
     </select>
-
-    <button id="start-conversation-button">Start conversation</button>
+    <button class="btn btn-primary" id="start-conversation-button">Start conversation</button>
+    <button class="btn btn-primary" id="end-conversation-button">End conversation</button>
     <p id="status-label"></p>
-  </body>
-  <script>
-    document
-      .getElementById("start-conversation-button")
-      .addEventListener("click", function () {
-        fetch("/start-conversation");
-        setInterval(() => {
-          console.log("fetching status");
-          fetch("/conversation-status")
-            .then(function (response) {
-              return response.text();
-            })
-            .then((d) => {
-              console.log(d);
-            });
-        }, 2000);
-      });
+  </div>
+</body>
+<script>
+  let isConversing = false;
+  let startButton = document.getElementById("start-conversation-button");
+  let endButton = document.getElementById("end-conversation-button");
+  let statusLabel = document.querySelector("#status-label");
 
-    statusLabel = document.querySelector("#status-label");
+  startButton.addEventListener("click", function () {
+    const value = document.getElementById("voice-id").value;
+    console.log(value);
+    fetch(`/start-conversation?voice=${value}`);
+    startButton.style.display = "none";
+    endButton.style.display = "block";
+    setInterval(() => {
+      if (!isConversing) {
+        clearInterval(this);
+      };
+      console.log("fetching status");
+      fetch("/conversation-status")
+        .then(function (response) {
+          return response.json();
+        })
+        .then((d) => {
+          console.log(d.status);
+          statusLabel.innerHTML = d.status;
+        }).catch((e) => {
+          clearInterval(this);
+        });
+    }, 2000);
+  });
+
+  endButton.addEventListener("click", function () {
+    isConversing = false;
+    fetch("/end-current-conversation");
+    window.location.reload(); 
+    startButton.style.display = "block";
+    endButton.style.display = "none";
+  });
     // fetch from /conversation-status every 1 second
-  </script>
+</script>
+
 </html>
