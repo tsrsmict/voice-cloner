@@ -40,6 +40,8 @@ def start_conversation_route():
 @app.route("/conversation-status")
 def conversation_status():
     global conversation
+    if conversation is None:
+        return "No conversation"
     return conversation.status_message
 
 @app.route("/end-current-conversation")
