@@ -1,7 +1,7 @@
 import json
 from typing import Optional
 
-from flask import Flask, render_template,requests
+from flask import Flask, render_template,request
 from flask import jsonify
 
 
