@@ -10,16 +10,26 @@
 <body>
     <h1>Voice cloner</h1>
 
+    <label for="">Choose voice</label>
+    <select name="" id="">
+        <option value="mr-beast">Mr. Beast</option>
+        <option value="mr-beast">Mr. Beast</option>
+    </select>
+
     <button id="start-conversation-button">Start conversation</button>
     <p id="status-label"></p>
-
-    <p id="transcribed-text"></p>
-
-    <p id="response-text"></p>
 </body>
 <script>
 document.getElementById("start-conversation-button").addEventListener("click", function() {
-    fetch("/start-conversation")
+    fetch("/start-conversation");
+    fetch("/conversation-status")
+    .then(function(data) {
+        statusLabel.innerHTML = data;
+    });
 });
+
+statusLabel = document.querySelector("#status-label");
+// fetch from /conversation-status every 1 second
+
 </script>
 </html>

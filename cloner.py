@@ -66,6 +66,8 @@ class CloneConversation:
     voice: VoiceClone
     message_objects: List[ChatGPTConversationMessage] = []
 
+    status_message: str = "Say something!"
+
     @property
     def messages(self):
         return [
@@ -79,9 +81,29 @@ class CloneConversation:
             ChatGPTConversationMessageRole.system, voice.chatgpt_starter_prompt
         )
         self.message_objects.append(initial_system_message)
+    
+
+    def get_audio(self) -> str:
+        self.status_message = "Listening..."
+        r = sr.Recognizer()
+        with sr.Microphone() as source:
+            # r.adjust_for_ambient_noise(source)
+            r.energy_threshold = 200
+            print("Say something!")
+            audio = r.listen(source)
+            print("Got it! Now to recognize it...")
+        said = ""
+        try:
+            said = r.recognize_google(audio)
+            print(said)
+        except Exception as e:
+            print("Exception: " + str(e))
+        self.status_message = "Transcribed audio to text."
+        return said
 
     # Private method
     def __get_agent_chat_completion(self, new_user_message: str) -> str:
+        self.status_message = "Getting response from ChatGPT..."
         new_message = ChatGPTConversationMessage(
             ChatGPTConversationMessageRole.user, new_user_message
         )
@@ -123,6 +145,7 @@ class CloneConversation:
     # Private method
   
     def __play_tts_stream(self, agent_text: str):
+        self.status_message = "Playing response..."
         url = f"https://api.elevenlabs.io/v1/text-to-speech/{self.voice.elevenlabs_voice_id}"
         body = {"text": agent_text, "voice_settings": self.voice.elevenlabs_settings}
         headers = {
@@ -138,7 +161,7 @@ class CloneConversation:
         os.system("ffplay sample.wav -nodisp -autoexit")
 
     # Public method
-    def play_response_to_new_message(self, user_message: str):
+    def play_response_to_new_message(self, user_message: str) -> str :
         if len(self.message_objects) > 6:
             raise Exception("Too many messages in conversation, terminating")
 
@@ -146,22 +169,6 @@ class CloneConversation:
         self.__play_tts_stream(agent_text)
 
 
-
-def get_audio():
-    r = sr.Recognizer()
-    with sr.Microphone() as source:
-        # r.adjust_for_ambient_noise(source)
-        r.energy_threshold = 200
-        print("Say something!")
-        audio = r.listen(source)
-        print("Got it! Now to recognize it...")
-    said = ""
-    try:
-        said = r.recognize_google(audio)
-        print(said)
-    except Exception as e:
-        print("Exception: " + str(e))
-    return said
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(add_help=False)
