@@ -162,7 +162,7 @@ class CloneConversation:
 
     # Public method
     def play_response_to_new_message(self, user_message: str) -> str :
-        if len(self.message_objects) > 6:
+        if len(self.message_objects) > 20:
             raise Exception("Too many messages in conversation, terminating")
 
         agent_text = self.__get_agent_chat_completion(user_message)
