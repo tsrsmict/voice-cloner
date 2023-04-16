@@ -2,7 +2,7 @@ import json
 from typing import Optional
 
 from flask import Flask, render_template
-
+from flask import jsonify
 
 from cloner import VoiceClone, CloneConversation
 
@@ -13,6 +13,7 @@ voices = [VoiceClone(voice_data) for voice_data in voices_data]
 conversation: Optional[CloneConversation] = None
 
 def start_conversation(voice: VoiceClone = voices[0]):
+    global conversation
     conversation = CloneConversation(voice)
 
     num_inputs = 0
@@ -35,8 +36,8 @@ def start_conversation_route():
 @app.route("/conversation-status")
 def conversation_status():
     global conversation
-    return conversation.status_message
+    return jsonify(status=conversation.status_message)
 
 if __name__=="__main__":
-    app.run(debug=True, port=5001)
+    app.run(debug=True, port=5001,threaded=True)
 

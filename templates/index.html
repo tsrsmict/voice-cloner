@@ -1,35 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
+  </head>
+  <body>
     <h1>Voice cloner</h1>
 
     <label for="">Choose voice</label>
     <select name="" id="">
-        <option value="mr-beast">Mr. Beast</option>
-        <option value="mr-beast">Mr. Beast</option>
+      <option value="mr-beast">Mr. Beast</option>
+      <option value="mr-beast">Mr. Beast</option>
     </select>
 
     <button id="start-conversation-button">Start conversation</button>
     <p id="status-label"></p>
-</body>
-<script>
-document.getElementById("start-conversation-button").addEventListener("click", function() {
-    fetch("/start-conversation");
-    fetch("/conversation-status")
-    .then(function(data) {
-        statusLabel.innerHTML = data;
-    });
-});
+  </body>
+  <script>
+    document
+      .getElementById("start-conversation-button")
+      .addEventListener("click", function () {
+        fetch("/start-conversation");
+        setInterval(() => {
+          console.log("fetching status");
+          fetch("/conversation-status")
+            .then(function (response) {
+              return response.text();
+            })
+            .then((d) => {
+              console.log(d);
+            });
+        }, 2000);
+      });
 
-statusLabel = document.querySelector("#status-label");
-// fetch from /conversation-status every 1 second
-
-</script>
+    statusLabel = document.querySelector("#status-label");
+    // fetch from /conversation-status every 1 second
+  </script>
 </html>
