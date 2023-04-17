@@ -10,6 +10,9 @@ from dotenv import load_dotenv
 import time
 import speech_recognition as sr
 
+import pyaudio
+import wave
+
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
@@ -17,9 +20,10 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 CHUNK_SIZE = 1024
 
+
 class VoiceClone:
     # Maps 1:1 onto the JSON data
-    name: str   
+    name: str
     chatgpt_starter_prompt: str
     elevenlabs_voice_id: str
     elevenlabs_stability: int
@@ -81,25 +85,58 @@ class CloneConversation:
             ChatGPTConversationMessageRole.system, voice.chatgpt_starter_prompt
         )
         self.message_objects.append(initial_system_message)
-    
+
+    def record(self):
+        self.status_message = "Recording..."
+        # Set up audio stream
+        audio = pyaudio.PyAudio()
+        stream = audio.open(
+            format=pyaudio.paInt16,
+            channels=1,
+            rate=44100,
+            input=True,
+            frames_per_buffer=1024,
+        )
+
+        # Record audio
+        frames = []
+        for i in range(0, int(44100 / 1024 * 5)):  # Record for 8 seconds
+            data = stream.read(1024)
+            frames.append(data)
+
+        # Stop audio stream
+        stream.stop_stream()
+        stream.close()
+        audio.terminate()
+
+        # Save audio to file
+        waveFile = wave.open("audio.wav", "wb")
+        waveFile.setnchannels(1)
+        waveFile.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
+        waveFile.setframerate(44100)
+        waveFile.writeframes(b"".join(frames))
+        waveFile.close()
+
+    def transcribe(self):
+        r = sr.Recognizer()
+        with sr.AudioFile("audio.wav") as source:
+            audio = r.record(source)
+        try:
+            text = r.recognize_google(audio)
+            print(text)
+            return text
+        except sr.UnknownValueError:
+            print("Google Speech Recognition could not understand audio")
+        except sr.RequestError as e:
+            print(
+                "Could not request results from Google Speech Recognition service; {0}".format(
+                    e
+                )
+            )
 
     def get_audio(self) -> str:
-        self.status_message = "Listening..."
-        r = sr.Recognizer()
-        with sr.Microphone() as source:
-            # r.adjust_for_ambient_noise(source)
-            r.energy_threshold = 200
-            print("Say something!")
-            audio = r.listen(source)
-            print("Got it! Now to recognize it...")
-        said = ""
-        try:
-            said = r.recognize_google(audio)
-            print(said)
-        except Exception as e:
-            print("Exception: " + str(e))
-        self.status_message = "Transcribed audio to text."
-        return said
+        self.record()
+        return self.transcribe()
 
     # Private method
     def __get_agent_chat_completion(self, new_user_message: str) -> str:
@@ -136,14 +173,13 @@ class CloneConversation:
         response_message = response.choices[0]["message"]["content"]
         new_agent_message = ChatGPTConversationMessage(
             ChatGPTConversationMessageRole.assistant, response_message
-        ) 
+        )
         self.message_objects.append(new_agent_message)
-        print(f'{response_message=}')
+        print(f"{response_message=}")
         return response_message
 
-
     # Private method
-  
+
     def __play_tts_stream(self, agent_text: str):
         self.status_message = "Playing response..."
         url = f"https://api.elevenlabs.io/v1/text-to-speech/{self.voice.elevenlabs_voice_id}"
@@ -155,19 +191,18 @@ class CloneConversation:
         }
         response = requests.post(url, json=body, headers=headers, stream=True)
         print(response.raw)
-        with open('sample.wav', 'wb') as out_file:
-             shutil.copyfileobj(response.raw, out_file)
-    
+        with open("sample.wav", "wb") as out_file:
+            shutil.copyfileobj(response.raw, out_file)
+
         os.system("ffplay sample.wav -nodisp -autoexit")
 
     # Public method
-    def play_response_to_new_message(self, user_message: str) -> str :
+    def play_response_to_new_message(self, user_message: str) -> str:
         if len(self.message_objects) > 20:
             raise Exception("Too many messages in conversation, terminating")
 
         agent_text = self.__get_agent_chat_completion(user_message)
         self.__play_tts_stream(agent_text)
-
 
 
 if __name__ == "__main__":
@@ -191,6 +226,6 @@ if __name__ == "__main__":
     num_inputs = 0
 
     while num_inputs < 6:
-        user_message = get_audio()
+        user_message = conversation.get_audio()
         conversation.play_response_to_new_message(user_message)
         num_inputs += 1
