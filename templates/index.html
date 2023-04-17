@@ -26,7 +26,7 @@
   </h1>
   <div class="flex flex-row justify-center gap-5 mt-24 h-60">
     {% for voice in voices %}
-    <img class="rounded-full celebrity-image brightness-[0.25]" src="/static/images/{{voice['internal-id']}}.jpeg" alt=""
+    <img class="rounded-full celebrity-image brightness-[0.25] pointer" src="/static/images/{{voice['internal-id']}}.jpeg" alt=""
       srcset="" id="img-{{voice['internal-id']}}">
     {% endfor %}
   </div>
@@ -88,6 +88,17 @@
 
   let voiceIdInput = document.getElementById("voice-id");
   voiceIdInput.addEventListener("input", updateImageOnInputChange);
+
+  
+  // add an event listener to each of document.getElementsByClassName("celebrity-image")
+
+  Array.from(document.getElementsByClassName("celebrity-image")).forEach((img) => {
+    img.addEventListener("click", function (e) {
+      let newVoiceId = e.target.id.split("-")[1];
+      voiceIdInput.value = newVoiceId;
+      voiceIdInput.dispatchEvent(new Event("input"));
+    });
+  });
 
   function updateImageOnInputChange(e) {
     let newVoiceId = e.target.value;
