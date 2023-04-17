@@ -87,7 +87,7 @@ class CloneConversation:
         self.message_objects.append(initial_system_message)
 
     def record(self):
-        self.status_message = "Recording..."
+        self.status_message = "Recording for 5 seconds..."
         # Set up audio stream
         audio = pyaudio.PyAudio()
         stream = audio.open(
@@ -116,6 +116,7 @@ class CloneConversation:
         waveFile.setframerate(44100)
         waveFile.writeframes(b"".join(frames))
         waveFile.close()
+        self.status_message = "Finished recording"
         return
 
     def transcribe(self):
@@ -178,7 +179,7 @@ class CloneConversation:
     # Private method
 
     def __play_tts_stream(self, agent_text: str):
-        self.status_message = "Playing response..."
+        self.status_message = "Synthesising audio..."
         url = f"https://api.elevenlabs.io/v1/text-to-speech/{self.voice.elevenlabs_voice_id}"
         body = {"text": agent_text, "voice_settings": self.voice.elevenlabs_settings}
         headers = {
@@ -190,7 +191,8 @@ class CloneConversation:
         print(response.raw)
         with open("sample.wav", "wb") as out_file:
             shutil.copyfileobj(response.raw, out_file)
-
+        
+        self.status_message = "Playing audio..."
         os.system("ffplay sample.wav -nodisp -autoexit")
 
     # Public method
