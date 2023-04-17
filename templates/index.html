@@ -30,11 +30,11 @@
       <option value="{{ voice['internal-id'] }}">{{voice["person-name"]}}</option>
       {% endfor %}
     </select>
-    <button class="uppercase font-bold text-lg p-4 bg-green-600 text-white rounded-lg" id="start-conversation-button">Start conversation</button>
+    <p class="mb-12 text-center text-xl font-semibold" id="status-label"></p>
+    <button class="uppercase  font-bold text-lg p-4 bg-green-600 text-white rounded-lg" id="start-conversation-button">Start conversation</button>
     <button class="uppercase font-bold text-lg p-4 bg-red-600 text-white rounded-lg" id="end-conversation-button">End conversation</button>
     
   </div>
-<p id="status-label"></p>
 </body>
 <script>
   let isConversing = false;
