@@ -1,0 +1,16 @@
+{
+  "name": "tell-the-ai-photo-apart",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "tailwind": "^4.0.0"
+  },
+  "scripts": {
+    "dev:css": "tailwindcss -i ./main.css -o static/tailwind-compiled-styles.css --watch",
+    "build:css": "tailwindcss -i ./main.css -o static/tailwind-compiled-styles.css --minify"
+  },
+  "dependencies": {
+    "tailwindcss": "^3.3.1"
+  }
+}
