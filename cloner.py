@@ -198,7 +198,8 @@ class CloneConversation:
     # Public method
     def play_response_to_new_message(self, user_message: str) -> str:
         if len(self.message_objects) > 20:
-            raise Exception("Too many messages in conversation, terminating")
+            # raise Exception("Too many messages in conversation, terminating")
+            print("Too many messages in conversation, please restart the server manually!")
 
         agent_text = self.__get_agent_chat_completion(user_message)
         self.__play_tts_stream(agent_text)
