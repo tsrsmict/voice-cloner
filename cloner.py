@@ -116,6 +116,7 @@ class CloneConversation:
         waveFile.setframerate(44100)
         waveFile.writeframes(b"".join(frames))
         waveFile.close()
+        return
 
     def transcribe(self):
         r = sr.Recognizer()
@@ -126,13 +127,9 @@ class CloneConversation:
             print(text)
             return text
         except sr.UnknownValueError:
-            print("Google Speech Recognition could not understand audio")
+            return ""
         except sr.RequestError as e:
-            print(
-                "Could not request results from Google Speech Recognition service; {0}".format(
-                    e
-                )
-            )
+            return ""
 
     def get_audio(self) -> str:
         self.record()
@@ -225,7 +222,7 @@ if __name__ == "__main__":
 
     num_inputs = 0
 
-    while num_inputs < 6:
+    while num_inputs < 20:
         user_message = conversation.get_audio()
         conversation.play_response_to_new_message(user_message)
         num_inputs += 1
