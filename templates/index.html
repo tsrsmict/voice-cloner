@@ -61,6 +61,7 @@
     fetch(`/start-conversation?voice=${value}`);
     startButton.style.display = "none";
     endButton.style.display = "block";
+    isConversing = true;
     setInterval(() => {
       if (!isConversing) {
         clearInterval(this);
@@ -93,6 +94,9 @@
   // add an event listener to each of document.getElementsByClassName("celebrity-image")
 
   Array.from(document.getElementsByClassName("celebrity-image")).forEach((img) => {
+    if (isConversing) {
+      window.location.reload();
+    }
     img.addEventListener("click", function (e) {
       let newVoiceId = e.target.id.split("-")[1];
       voiceIdInput.value = newVoiceId;

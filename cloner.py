@@ -193,6 +193,7 @@ class CloneConversation:
             shutil.copyfileobj(response.raw, out_file)
         
         self.status_message = "Playing audio..."
+        time.sleep(len(agent_text.split(" ") / 10))
         os.system("ffplay sample.wav -nodisp -autoexit")
 
     # Public method
@@ -203,6 +204,7 @@ class CloneConversation:
 
         agent_text = self.__get_agent_chat_completion(user_message)
         self.__play_tts_stream(agent_text)
+        return agent_text
 
 
 if __name__ == "__main__":
