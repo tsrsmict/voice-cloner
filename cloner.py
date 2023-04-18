@@ -193,7 +193,7 @@ class CloneConversation:
             shutil.copyfileobj(response.raw, out_file)
         
         self.status_message = "Playing audio..."
-        time.sleep(len(agent_text.split(" ") / 10))
+        time.sleep(len(agent_text.split(" ")) / 10)
         os.system("ffplay sample.wav -nodisp -autoexit")
 
     # Public method
