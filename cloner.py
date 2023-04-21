@@ -135,7 +135,7 @@ class CloneConversation:
     # Private method
     def __get_agent_chat_completion(self, new_user_message: str) -> str:
         self.status_message = "Getting response from ChatGPT..."
-        if len(self.message_objects == 0):
+        if len(self.message_objects) == 0:
             
             new_message = ChatGPTConversationMessage(
                 ChatGPTConversationMessageRole.user, f'{self.voice.chatgpt_starter_prompt} {new_user_message}'
