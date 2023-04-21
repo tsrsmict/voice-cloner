@@ -141,6 +141,7 @@ class CloneConversation:
         )
             
         self.message_objects.append(new_message)
+        print(f'{self.messages=}')
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=self.messages,
