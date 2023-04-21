@@ -81,10 +81,6 @@ class CloneConversation:
 
     def __init__(self, voice: VoiceClone):
         self.voice = voice
-        initial_system_message = ChatGPTConversationMessage(
-            ChatGPTConversationMessageRole.system, voice.chatgpt_starter_prompt
-        )
-        self.message_objects.append(initial_system_message)
 
     def record(self):
         self.status_message = "Recording for 5 seconds..."
@@ -139,9 +135,16 @@ class CloneConversation:
     # Private method
     def __get_agent_chat_completion(self, new_user_message: str) -> str:
         self.status_message = "Getting response from ChatGPT..."
-        new_message = ChatGPTConversationMessage(
-            ChatGPTConversationMessageRole.user, new_user_message
-        )
+        if len(self.message_objects == 0):
+            
+            new_message = ChatGPTConversationMessage(
+                ChatGPTConversationMessageRole.user, f'{self.voice.chatgpt_starter_prompt} {new_user_message}'
+            )
+        else:
+            new_message = ChatGPTConversationMessage(
+                ChatGPTConversationMessageRole.user, new_user_message
+            )
+            
         self.message_objects.append(new_message)
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
@@ -169,6 +172,7 @@ class CloneConversation:
         }
         """
         response_message = response.choices[0]["message"]["content"]
+        
         new_agent_message = ChatGPTConversationMessage(
             ChatGPTConversationMessageRole.assistant, response_message
         )
