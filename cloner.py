@@ -81,6 +81,7 @@ class CloneConversation:
 
     def __init__(self, voice: VoiceClone):
         self.voice = voice
+        self.message_objects.append(ChatGPTConversationMessage(role=ChatGPTConversationMessageRole.system, content=self.voice.chatgpt_starter_prompt))
 
     def record(self):
         self.status_message = "Recording for 5 seconds..."
@@ -135,15 +136,9 @@ class CloneConversation:
     # Private method
     def __get_agent_chat_completion(self, new_user_message: str) -> str:
         self.status_message = "Getting response from ChatGPT..."
-        if len(self.message_objects) == 0:
-            
-            new_message = ChatGPTConversationMessage(
-                ChatGPTConversationMessageRole.user, f'{self.voice.chatgpt_starter_prompt} {new_user_message}'
-            )
-        else:
-            new_message = ChatGPTConversationMessage(
-                ChatGPTConversationMessageRole.user, new_user_message
-            )
+        new_message = ChatGPTConversationMessage(
+            ChatGPTConversationMessageRole.user, new_user_message
+        )
             
         self.message_objects.append(new_message)
         response = openai.ChatCompletion.create(
@@ -197,7 +192,6 @@ class CloneConversation:
             shutil.copyfileobj(response.raw, out_file)
         
         self.status_message = "Playing audio..."
-        time.sleep(len(agent_text.split(" ")) / 10)
         os.system("ffplay sample.wav -nodisp -autoexit")
 
     # Public method
