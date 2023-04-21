@@ -22,7 +22,7 @@ def start_conversation(voice: VoiceClone = voices[0]):
     while num_inputs < 20 and conversation is not None:
         user_message = conversation.get_audio()
         if conversation is not None:
-            text = conversation.play_response_to_new_message(user_message)
+            conversation.play_response_to_new_message(user_message)
             num_inputs += 1
 
 app = Flask(__name__)
